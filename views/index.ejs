@@ -2,12 +2,59 @@
 <html>
   <head>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
   </head>
   <body>
-    
+
+    <div>
+      <div class="chat-box"></div>
+    </div>
+
+    <div>
+      <form id="form-chat">
+        <div>
+          <input id="username" name="username" type="text" />
+        </div>
+        <div>
+          <input id="text-chat" name="textchat" type="text" />
+        </div>
+        <button type="submit" name="button">Submit</button>
+      </form>
+    </div>
+
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io('http://localhost:3000');
+
+      socket.on('connected', function(msg) {
+        console.log('Message:',msg)
+      })
+
+      $(document).ready(function() {
+        $('#form-chat').submit(function(event) {
+          event.preventDefault();
+          var data = {
+            username: $('#username').val(),
+            message: $('#text-chat').val()
+          }
+
+          if (data.username !== '' && data.message !== '') {
+            socket.emit('new message', data);
+            $('#text-chat').val('');
+          }
+
+        });
+      });
+
+      socket.on('chat message', function(msg) {
+        let li = `<li><strong>${msg.date}  ${msg.username} </strong>: ${msg.message} </li>`;
+        $('.chat-box').append(li);
+      });
+
     </script>
 
   </body>
